@@ -73,11 +73,10 @@ class Reator(object):
     def verificar_tdh(self):
         volume = self.altura_do_reator() * self.largura_comprimento()[0] * self.largura_comprimento()[1]
         tdh2 = volume*3 / ((self.afluente.vazaoMedia)/24)
-        print(tdh2)
         if round(tdh2,1) == round(self.tdh,1):
             self.altura = self.altura_do_reator()
-            self.largura = self.largura_comprimento[0]
-            self.comprimento = self.largura_comprimento[1]
+            self.largura = self.largura_comprimento()[0]
+            self.comprimento = self.largura_comprimento()[1]
         else:
             return False
         
