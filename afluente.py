@@ -3,13 +3,11 @@ from entrada import Entrada
 
 class Afluente(object):
 
-    def __init__(self, populacao, producao):
-        """
-        populacao: População Atendida;
-        producao: Esgoto produzido por pessoa
-        """
+    def __init__(self, populacao, producao, concentracao = 0.6):
+        
         self.populacao = populacao
         self.producao = producao
+        self.concentracao = concentracao
         self.vazaoMedia = self.vazao_media()
         self.vazaoMaxima = self.vazao_maxima()
 
