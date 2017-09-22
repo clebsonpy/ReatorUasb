@@ -14,7 +14,7 @@ class Reator(object):
 
     def volume(self):
         volumeMedia = (self.tdh * (self.afluente.vazaoMedia)/24) 
-        return volumeMedia
+        return round(volumeMedia, 2)
 
 
     def nCelula(self, nCel = 1):
@@ -31,10 +31,10 @@ class Reator(object):
 
 
     def volume_cada_reator(self):
-        return self.volume()/self.nCelula()
+        return self.volume() / self.nCelula()
     
 
-    def altura_do_reator(self, altura = 5.5):
+    def altura_do_reator(self, altura = 6):
         velocidade = altura / self.tdh
         tdhm = (self.volume()/(self.afluente.vazaoMaxima/24))
         velocidadeMax = altura / tdhm
@@ -60,28 +60,34 @@ class Reator(object):
                 
 
     def area_util(self):
-        area = self.volume_cada_reator()/self.altura_do_reator()
+        area = self.volume_cada_reator() / self.altura_do_reator()
         return area
 
 
-    def largura_comprimento(self):
-        la = math.sqrt(self.area_util()/1.25)
-        com = 1.25 * la
-        return round(la,1), round(com,1)
+    def largura_reator(self):
+        la = math.sqrt(self.area_util() / 1.25)
+        return round(la, 1)
 
+
+    def comprimento_reator(self):
+        compri = 1.25 * self.largura_reator()
+        return round(compri, 1)
 
     def verificar_tdh(self):
-        volume = self.altura_do_reator() * self.largura_comprimento()[0] * self.largura_comprimento()[1]
-        tdh2 = volume*3 / ((self.afluente.vazaoMedia)/24)
-        if round(tdh2,1) == round(self.tdh,1):
+        volume = self.altura_do_reator() * self.largura_reator() * self.comprimento_reator()
+        tdh2 = (volume * 3) / ((self.afluente.vazaoMedia) / 24)
+        
+        if round(tdh2, 1) == round(self.tdh, 1):
             self.altura = self.altura_do_reator()
-            self.largura = self.largura_comprimento()[0]
-            self.comprimento = self.largura_comprimento()[1]
+            self.largura = self.largura_reator()
+            self.comprimento = self.comprimento_reator()
         else:
-            return False
+            self.tdh = round(tdh2, 1)
+            self.verificar_tdh()
+            
         
     def carga_hidraulica_volumetrica(self):
-        carga = self.afluente.vazaoMedia / self.volume_reator()[0]
+        carga = self.afluente.vazaoMedia / self.volume()
         return carga
 
 
