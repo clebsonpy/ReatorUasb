@@ -17,6 +17,7 @@ class Reator():
         self.altura_reator = self.altura_do_reator()
         self.largura_reator = self.largura_do_reator()
         self.comprimento_reator = self.comprimento_do_reator()
+        self.pontos_descarga = self.pontos_de_descarga()
     
 
     def volume(self):
@@ -107,3 +108,7 @@ class Reator():
     def carga_organica_volumetrica(self):
         carga = (self.afluente.vazaoMedia * self.afluente.concentracao) / self.volume_total
         return carga
+
+    def pontos_de_descarga(self):
+        pontos = (self.largura_reator * self.comprimento_reator) / 3
+        return round(pontos)

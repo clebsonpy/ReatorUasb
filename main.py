@@ -24,3 +24,4 @@ if __name__ == '__main__':
     print("Tempo TDH: ", reator.tdh)
     print("Carga Aplicada: ", reator.carga_hidraulica_volumetrica())
     print("Velocidade Ascensional: ", reator.velocidade_ascencional())
+    print("Pontos: ", reator.pontos_descarga)
