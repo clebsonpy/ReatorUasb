@@ -38,7 +38,7 @@ class Reator():
 
 
     def volume_cada_reator(self):
-        return self.volume_total / self.nCel
+        return round((self.volume_total / self.nCel), 2)
     
 
     def altura_do_reator(self, altura = 5):
@@ -68,27 +68,27 @@ class Reator():
 
     def area_util(self):
         area = self.volume_reator / self.altura_reator
-        return round(area, 1)
+        return round(area, 2)
 
 
     def largura_do_reator(self):
         la = math.sqrt(self.area_util() / 1.25)
-        return round(la, 1)
+        return round(la + 0.00499, 2)
 
 
     def comprimento_do_reator(self):
         compri = 1.25 * self.largura_reator
-        return round(compri, 1)
+        return round(compri + 0.00499, 2)
 
     def verificar_tdh(self):
-        volume = self.altura_reator * self.largura_reator * self.comprimento_reator
-        tdh2 = (volume * self.nCel) / ((self.afluente.vazaoMedia) / 24)
+        self.volume_reator = round(self.altura_reator * self.largura_reator * self.comprimento_reator, 2)
+        tdh2 = (self.volume_reator * self.nCel) / ((self.afluente.vazaoMedia) / 24)
 
         if round(tdh2, 1) == round(self.tdh, 1):
             self.altura_reator = self.altura_do_reator()
             self.largura_reator = self.largura_do_reator()
             self.comprimento_reator = self.comprimento_do_reator()
-            self.volume_total = self.nCel * (self.altura_reator * self.largura_reator * self.comprimento_reator)
+            self.volume_total = round(self.nCel * self.volume_reator, 2)
         else:
             self.tdh = round(tdh2, 1)
             self.verificar_tdh()
