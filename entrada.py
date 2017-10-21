@@ -1,4 +1,4 @@
 class Entrada(object):
 
     def __init__(self, mensage):
-        self.input = float(input('%s: ' % mensage))
+        self.entra = float(input('%s: ' % mensage))

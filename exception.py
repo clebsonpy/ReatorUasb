@@ -15,3 +15,7 @@ class Volume(Erro):
 class Velocidade(Erro):
     def __init__(self):
         pass
+
+class Temperatura(Erro):
+    def __init__(self):
+        pass

@@ -1,28 +1,52 @@
 import math
 
 from afluente import Afluente
-from exception import Altura, Volume, Velocidade
+from exception import Altura, Volume, Velocidade, Temperatura
 from entrada import Entrada
 
 
 class Reator():
 
-
-    def __init__(self, populacao, producao, tdh):
-        self.tdh = tdh
-        self.afluente = Afluente(populacao, producao)
+    
+    def __init__(self, populacao, producao, temperatura, concentracao = 0.6):
+        self.afluente = Afluente(populacao, producao, temperatura, concentracao)
+        self.tdh = self.tempo_detencao_hidraulica()
         self.volume_total = self.volume()
         self.nCel = self.nCelula()
         self.volume_reator = self.volume_cada_reator()
         self.altura_reator = self.altura_do_reator()
         self.largura_reator = self.largura_do_reator()
         self.comprimento_reator = self.comprimento_do_reator()
+        self.area = self.area_util()
         self.pontos_descarga = self.pontos_de_descarga()
+        self.eficienciaDQO = self.eficiencia_DQO()
+        self.eficienciaDBO = self.eficiencia_DBO()
     
+    def tempo_detencao_hidraulica(self):
+        """
+        return: Tempo de detenção hidráulica de acordo com a temperatura
+        """
+        try:
+            if 16 <= self.afluente.temperatura < 20:
+                return float(input("Tempo entre 9 < tdh <= 14: "))
 
+            elif 20 <= self.afluente.temperatura < 26:
+                return float(input("Tempo entre 6 < tdh <= 9: "))
+            
+            elif self.afluente.temperatura > 26:
+                return float(input("Tempo entre tdh >= 6: "))
+
+            else:
+                raise Temperatura
+
+        except Temperatura:
+            self.afluente.temperatura = float(input("Nova Temperatura: "))
+            return self.tempo_detencao_hidraulica()
+            
+            
     def volume(self):
-        volumeMedia = (self.tdh * (self.afluente.vazaoMedia)/24) 
-        return round(volumeMedia, 2)
+        V = (self.tdh * (self.afluente.vazaoMedia)/24) 
+        return round(V, 2)
 
 
     def nCelula(self, nCel = 1):
@@ -42,7 +66,7 @@ class Reator():
         return round((self.volume_total / self.nCel), 2)
     
 
-    def altura_do_reator(self, altura = 5):
+    def altura_do_reator(self, altura = float(input("Altura do Reator (m): "))):
         velocidade = altura / self.tdh
         self.tdhm = (self.volume_total / (self.afluente.vazaoMaxima/24))
         velocidadeMax = altura / self.tdhm
@@ -95,20 +119,35 @@ class Reator():
             self.verificar_tdh()
 
         
-    def carga_hidraulica_volumetrica(self):
-        carga = self.afluente.vazaoMedia / self.volume_total
-        return round(carga, 2)
+    def carga_hidraulica_volumetrica_media(self):
+        CHV = self.afluente.vazaoMedia / self.volume_total
+        return round(CHV, 2)
+
+    def carga_hidraulica_volumetrica_maxima(self):
+        CHV = self.afluente.vazaoMaxima / self.volume_total
+        return round(CHV, 2)
     
 
-    def velocidade_ascencional(self):
-        velocidade = self.altura_reator / self.tdh
-        return round(velocidade, 2)
+    def velocidade_superficial_fluxo_media(self):
+        v = ((self.afluente.vazaoMedia/24) * self.altura_reator) / self.volume_total
+        return round(v, 2)
 
+    def velocidade_superficial_fluxo_maxima(self):
+        v = ((self.afluente.vazaoMaxima/24) * self.altura_reator) / self.volume_total
+        return round(v, 2)
 
     def carga_organica_volumetrica(self):
-        carga = (self.afluente.vazaoMedia * self.afluente.concentracao) / self.volume_total
-        return carga
+        COV = ((self.afluente.vazaoMedia/24) * self.afluente.concentracao) / self.volume_total
+        return COV
 
-    def pontos_de_descarga(self):
-        pontos = (self.largura_reator * self.comprimento_reator) / 3
-        return round(pontos)
+    def pontos_de_descarga(self, area = float(input("Área de Influencia de cada distribuidor: "))):
+        Nd = self.area / area
+        return round(Nd) * 2
+
+    def eficiencia_DQO(self):
+        E = 100*(1 - (0.68 * self.tdh**(-0.35)))
+        return round(E, 2)
+    
+    def eficiencia_DBO(self):
+        E = 100*(1 - (0.70 * self.tdh**(-0.5)))
+        return round(E, 2)
