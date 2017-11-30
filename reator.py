@@ -205,15 +205,18 @@ class Reator():
         area_decantadores = comprimento_decan * largura_compartimento_util
         velocidade_medio = (self.afluente.vazaoMedia/24)/area_decantadores
         velocidade_maximo = (self.afluente.vazaoMaxima/24)/area_decantadores
-        
+        altura_decantador =  
+
         #Separador
+        angulo = 50
         largura_inclinada = (self.lagura_decantacao / 2) - self.ent.largura_abertura_decan
-        tempo_decantador_medio = 1.5
-        tempo_decantador_max = 1
+        altura_inclinada = math.tan(math.radians(angulo))*largura_inclinada
+        
 
 
         if 0.6 < velociade_medio < 0.8 and velocidade_maximo < 1.2:
             return largura_compartimento_util
         
         
-    def (self):
+    def verificar_medidas(self, ):
+        i
