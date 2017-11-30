@@ -24,6 +24,8 @@ if __name__ == '__main__':
     print("DQO Efluente (mgDQO/L): ", reator.efluenteDQO)
     print("DBO Efluente (mgDBO/L): ", reator.efluenteDBO)
     print("Produção Metano (m³/d): ", reator.prod_metano)
-    print("Produção Biogás (m³/d): ", reator.prod_biogas())
-    print("Largura dos coletores de gás (m): ", reator.coletores_gas())
-
+    print("Produção Biogás (m³/d): ", reator.biogas)
+    print("Produção de lodo (m³/d): ", reator.volume_lodo)
+    print("Largura dos coletores de gás (m): ", reator.coletores_biogas)
+    print("Abertura simples para o decantador: ", reator.abertura_simples_decan)
+    print("Lagura compartimento decantação: ", reator.lagura_decantacao)

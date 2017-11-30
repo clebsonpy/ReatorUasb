@@ -19,7 +19,6 @@ class Reator():
         self.largura_modulo = self.largura_do_modulo()
         self.comprimento_reator = self.comprimento_do_reator()
         self.largura_cel = self.largura_do_modulo()
-        self.comprimento_cel = self.comprimento_reator / self.nCel
         self.area = self.area_modulo()
         self.pontos_descarga = self.pontos_de_descarga()
         self.eficienciaDQO = self.eficiencia_DQO()
@@ -27,6 +26,12 @@ class Reator():
         self.efluenteDQO = self.DQO_efluente()
         self.efluenteDBO = self.DBO_efluente()
         self.prod_metano = self.prod_metano()
+        self.biogas = self.prod_biogas()
+        self.volume_lodo = self.prod_lodo()
+        self.coletores_biogas = self.coletores_gas()
+        self.abertura_simples_decan = self.abertura_para_decantador()
+        self.lagura_decantacao = self.decantacao()
+        
     
     
     def volume(self):
@@ -160,13 +165,55 @@ class Reator():
     def prod_biogas(self):
         return self.prod_metano / 0.75
 
+    def prod_lodo(self):
+        lodo = self.ent.coef_prod_solidos * self.afluente.carga_diaria_media_DQO()
+        volume_lodo = lodo / (self.afluente.ent.densidade_lodo * (self.afluente.ent.concentração_esperada_lodo/100)) 
+        return volume_lodo
+
     def coletores_gas(self):
         self.ent.coletores_gas()
         nCol = self.ent.nColetores * 2
         comprimento_col = nCol * self.largura_modulo
         area_coletores = comprimento_col * self.ent.largura_coletores
         if (self.prod_biogas()/24)/area_coletores < 1:
-            self.ent.largura_coletores -= 0.02
             return coletores_gas()
 
         return self.ent.largura_coletores
+
+    def abertura_para_decantador(self):
+        self.ent.abertura_para_decantador()
+        abert_simples = 2 * self.nCel
+        abert_duplas = (self.ent.nColetores - 1) * self.nCel
+        nEquivalente_simples = abert_simples + abert_duplas * 2
+        area_abertura = nEquivalente_simples * self.largura_modulo * self.ent.largura_abertura_decan
+        
+        velociade_med = (self.afluente.vazaoMedia/24) / area_abertura
+        velociade_max = (self.afluente.vazaoMaxima/24) / area_abertura
+
+        print(velociade_med)
+
+        if  velociade_med > 2.5 and velociade_max > 4:
+            return self.abertura_para_decantador()
+
+        return self.ent.largura_abertura_decan
+
+    def decantacao(self):
+        comprimento_decan = self.nCel * self.largura_modulo * self.ent.nColetores
+        largura_coletor_gas = self.coletores_biogas + 0.05
+        largura_compartimento = round((self.comprimento_reator / self.ent.nColetores) + 0.00499, 2)
+        largura_compartimento_util = largura_compartimento - 0.3
+        area_decantadores = comprimento_decan * largura_compartimento_util
+        velocidade_medio = (self.afluente.vazaoMedia/24)/area_decantadores
+        velocidade_maximo = (self.afluente.vazaoMaxima/24)/area_decantadores
+        
+        #Separador
+        largura_inclinada = (self.lagura_decantacao / 2) - self.ent.largura_abertura_decan
+        tempo_decantador_medio = 1.5
+        tempo_decantador_max = 1
+
+
+        if 0.6 < velociade_medio < 0.8 and velocidade_maximo < 1.2:
+            return largura_compartimento_util
+        
+        
+    def (self):

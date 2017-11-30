@@ -9,7 +9,7 @@ class Entrada(object):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             cls.populacao = int(input('População: '))
-            cls.contribuicao= float(input("Esgoto por pessoa (m³/dia): "))
+            cls.contribuicao = float(input("Esgoto por pessoa (m³/dia): "))
             cls.temperatura = float(input("Temperatura (ºC): "))
         return cls._instance
 
@@ -22,7 +22,7 @@ class Entrada(object):
             ("Coeficiente de produção de sólidos em DQO(kgDQO/kgDQO): "))
         self.concentração_esperada_lodo = float(input
             ("Concentração esperado para lodo descarte(%): "))
-        self.desidade_lodo = float(input("Densidade do lodo(kgSST/m³): "))
+        self.densidade_lodo = float(input("Densidade do lodo(kgSST/m³): "))
 
     def reator(self):
         try:
@@ -47,3 +47,6 @@ class Entrada(object):
     def coletores_gas(self):
         self.nColetores = int(input("Quantidade de coletores por módulo: "))
         self.largura_coletores = float(input("Lagura de cada coletor de gás: "))
+
+    def abertura_para_decantador(self):
+        self.largura_abertura_decan = float(input("Largura de abertura decantador: "))
