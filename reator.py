@@ -6,9 +6,9 @@ from entrada import Entrada
 
 class Reator():
 
-    
+
     def __init__(self):
-        
+
         self.afluente = Afluente()
         self.ent = Entrada()
         self.ent.reator()
@@ -30,12 +30,11 @@ class Reator():
         self.volume_lodo = self.prod_lodo()
         self.coletores_biogas = self.coletores_gas()
         self.abertura_simples_decan = self.abertura_para_decantador()
-        self.lagura_decantacao = self.decantacao()
-        
-    
-    
+        self.volume_dec = self.volume_decantacao()
+        self.trespasse_do_defletor = self.ent.trespasse()
+
     def volume(self):
-        V = (self.ent.tdh * (self.afluente.vazaoMedia)/24) 
+        V = (self.ent.tdh * (self.afluente.vazaoMedia)/24)
         return round(V, 2)
 
 
@@ -54,7 +53,7 @@ class Reator():
 
     def volume_cada_modulo(self):
         return round((self.volume_total / self.nCel), 2)
-    
+
 
     def altura_do_reator(self):
         velocidade = self.ent.altura / self.ent.tdh
@@ -79,7 +78,7 @@ class Reator():
             else:
                 self.ent.altura += 1
             return self.altura_do_reator()
-                
+
 
     def area_modulo(self):
         area = self.volume_modulo / self.altura_reator
@@ -108,7 +107,7 @@ class Reator():
             self.ent.tdh = round(tdh2, 1)
             self.verificar_tdh()
 
-        
+
     def carga_hidraulica_volumetrica_media(self):
         CHV = self.afluente.vazaoMedia / self.volume_total
         return round(CHV, 2)
@@ -116,7 +115,7 @@ class Reator():
     def carga_hidraulica_volumetrica_maxima(self):
         CHV = self.afluente.vazaoMaxima / self.volume_total
         return round(CHV, 2)
-    
+
 
     def velocidade_superficial_fluxo_media(self):
         v = ((self.afluente.vazaoMedia/24) * self.altura_reator) / self.volume_total
@@ -128,7 +127,7 @@ class Reator():
 
     def carga_organica_volumetrica(self):
         COV = (self.afluente.carga_diaria_media_DQO()) / self.volume_total
-        return COV
+        return round(COV, 2)
 
     def pontos_de_descarga(self):
         raio = math.sqrt(self.ent.area_distr/3.1415)
@@ -137,22 +136,24 @@ class Reator():
         nComp = round(self.comprimento_reator/lado + 0.499)
         Nd = nComp * nLarg
 
-        self.area_distr = self.area / Nd
+        self.area_distr = round(self.area / Nd, 2)
         return round(Nd) * 2
 
     def eficiencia_DQO(self):
         E = 100*(1 - (0.68 * self.ent.tdh**(-0.35)))
         return round(E, 2)
-    
+
     def eficiencia_DBO(self):
         E = 100*(1 - (0.70 * self.ent.tdh**(-0.5)))
         return round(E, 2)
 
     def DQO_efluente(self):
-        return self.afluente.ent.DQO - (self.eficienciaDQO * self.afluente.ent.DQO)/100
+        dqo = self.afluente.ent.DQO - (self.eficienciaDQO * self.afluente.ent.DQO)/100
+        return round(dqo, 2)
 
     def DBO_efluente(self):
-        return self.afluente.ent.DBO - (self.eficienciaDBO * self.afluente.ent.DBO)/100
+        dbo = self.afluente.ent.DBO - (self.eficienciaDBO * self.afluente.ent.DBO)/100
+        return round(dbo, 2)
 
     def prod_metano(self):
         aux = (self.afluente.ent.DQO/1000) - (self.efluenteDQO/1000)
@@ -160,63 +161,112 @@ class Reator():
         dqo_metano = self.afluente.vazaoMedia * (aux-aux2)
         dqo_teo = 64/(0.08206 * (273 + self.afluente.ent.temperatura))
 
-        return dqo_metano / dqo_teo
+        return round(dqo_metano / dqo_teo, 2)
 
     def prod_biogas(self):
-        return self.prod_metano / 0.75
+        return round(self.prod_metano / 0.75, 2)
 
     def prod_lodo(self):
         lodo = self.ent.coef_prod_solidos * self.afluente.carga_diaria_media_DQO()
-        volume_lodo = lodo / (self.afluente.ent.densidade_lodo * (self.afluente.ent.concentração_esperada_lodo/100)) 
-        return volume_lodo
+        volume_lodo = lodo / (self.afluente.ent.densidade_lodo * (self.afluente.ent.concentração_esperada_lodo/100))
+        return round(volume_lodo, 2)
 
     def coletores_gas(self):
-        self.ent.coletores_gas()
-        nCol = self.ent.nColetores * 2
-        comprimento_col = nCol * self.largura_modulo
-        area_coletores = comprimento_col * self.ent.largura_coletores
-        if (self.prod_biogas()/24)/area_coletores < 1:
-            return coletores_gas()
+        try:
+            nCol = self.ent.nColetores * self.nCel
+            comprimento_col = nCol * self.largura_modulo
+            area_coletores = comprimento_col * self.ent.largura_coletores
 
-        return self.ent.largura_coletores
+            self.taxa_biogas = (self.prod_biogas()/24)/area_coletores
+            if  self.taxa_biogas <= 1:
+                self.ent.largura_coletores -= 0.005
+                return self.coletores_gas()
+
+
+            return round(self.ent.largura_coletores, 2)
+        
+        except AttributeError:
+            self.ent.coletores_gas()
+            return self.coletores_gas()
+
 
     def abertura_para_decantador(self):
-        self.ent.abertura_para_decantador()
-        abert_simples = 2 * self.nCel
-        abert_duplas = (self.ent.nColetores - 1) * self.nCel
-        nEquivalente_simples = abert_simples + abert_duplas * 2
-        area_abertura = nEquivalente_simples * self.largura_modulo * self.ent.largura_abertura_decan
-        
-        velociade_med = (self.afluente.vazaoMedia/24) / area_abertura
-        velociade_max = (self.afluente.vazaoMaxima/24) / area_abertura
+        try:
+            abert_simples = 2 * self.nCel
+            abert_duplas = (self.ent.nColetores - 1) * self.nCel
+            nEquivalente_simples = abert_simples + abert_duplas * 2
+            area_abertura = nEquivalente_simples * self.largura_modulo * self.ent.largura_abertura_decan
 
-        print(velociade_med)
+            velociade_med = (self.afluente.vazaoMedia/24) / area_abertura
+            velociade_max = (self.afluente.vazaoMaxima/24) / area_abertura
+            if  velociade_med > 2.5 and velociade_max > 4:
+                self.ent.largura_abertura_decan += 0.01
+                print(self.ent.largura_abertura_decan)
+                return self.abertura_para_decantador()
 
-        if  velociade_med > 2.5 and velociade_max > 4:
+            return round(self.ent.largura_abertura_decan, 2)
+
+        except AttributeError:
+            self.ent.abertura_para_decantador()
             return self.abertura_para_decantador()
 
-        return self.ent.largura_abertura_decan
 
-    def decantacao(self):
+    def largura_decantacao(self):
         comprimento_decan = self.nCel * self.largura_modulo * self.ent.nColetores
-        largura_coletor_gas = self.coletores_biogas + 0.05
+        largura_coletor_gas = self.coletores_biogas + (2 * 0.025)
         largura_compartimento = round((self.comprimento_reator / self.ent.nColetores) + 0.00499, 2)
-        largura_compartimento_util = largura_compartimento - 0.3
+        largura_compartimento_util = largura_compartimento - largura_coletor_gas
         area_decantadores = comprimento_decan * largura_compartimento_util
-        velocidade_medio = (self.afluente.vazaoMedia/24)/area_decantadores
-        velocidade_maximo = (self.afluente.vazaoMaxima/24)/area_decantadores
-        altura_decantador =  
 
+        velocidade_med = (self.afluente.vazaoMedia/24)/area_decantadores
+        velocidade_max = (self.afluente.vazaoMaxima/24)/area_decantadores
+
+        if 0.6 < velocidade_med < 0.8 and velocidade_max < 1.2:
+            return round(largura_compartimento_util, 2)
+
+        elif self.taxa_biogas >= 1:
+            if 0.6 > velocidade_med:
+                sinal = 1
+            elif 0.7 < velocidade_med:
+                sinal = -1
+
+            self.ent.largura_coletores += (0.005*sinal)
+            self.coletores_gas()
+            self.largura_decantacao()
+
+    def volume_decantacao(self):
         #Separador
-        angulo = 50
-        largura_inclinada = (self.lagura_decantacao / 2) - self.ent.largura_abertura_decan
-        altura_inclinada = math.tan(math.radians(angulo))*largura_inclinada
-        
+        try:
+            self.largura_compartimento_util = self.largura_decantacao()
+            self.laba_i = (self.largura_compartimento_util / 2) - self.abertura_simples_decan
+            area_dec_1 = self.laba_i * self.ent.altura_h1_inclinada / 2
+            area_dec_2 = self.ent.altura_h1_inclinada * (2 * self.abertura_simples_decan)
+            area_dec_3 = self.ent.altura_h2_vertical * self.largura_compartimento_util
+            area_dec = 2 * area_dec_1 + area_dec_2 + area_dec_3
+            volume_dec = self.ent.nColetores * self.nCel * self.largura_modulo * area_dec
+
+            self.angulo = round(math.degrees(math.atan(self.ent.altura_h1_inclinada/self.laba_i)), 2)
+            
+            if self.angulo < 50:
+                self.ent.altura_h1_inclinada += 0.1
+                self.volume_decantacao()
+            else:
+                tdh_dec_med = volume_dec / (self.afluente.vazaoMedia/24)
+                tdh_dec_max = volume_dec / (self.afluente.vazaoMaxima/24)
+                print("TDH: ", tdh_dec_med, tdh_dec_max)
+                if tdh_dec_med <= 1.5 and tdh_dec_max <= 1:
+                    if self.angulo == 50:
+                        self.ent.altura_h2_vertical += 0.05
+                        print(self.ent.altura_h2_vertical)
+                        self.volume_decantacao()
+
+                    else:
+                        self.ent.altura_h1_inclinada += 0.1
+                        self.volume_decantacao()
 
 
-        if 0.6 < velociade_medio < 0.8 and velocidade_maximo < 1.2:
-            return largura_compartimento_util
-        
-        
-    def verificar_medidas(self, ):
-        i
+                return round(volume_dec, 2)
+
+        except AttributeError:
+            self.ent.altura_decantador()
+            return self.volume_decantacao()

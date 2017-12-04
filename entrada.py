@@ -2,7 +2,7 @@ from exception import Temperatura
 
 
 class Entrada(object):
-    
+
     _instance = None
 
     def __new__(cls, *args, **kwargs):
@@ -31,7 +31,7 @@ class Entrada(object):
 
             elif 20 <= self.temperatura < 26:
                 self.tdh = float(input("Tempo entre 6 < tdh <= 9: "))
-            
+
             elif self.temperatura > 26:
                 self.tdh = float(input("Tempo entre tdh >= 6: "))
             else:
@@ -40,13 +40,20 @@ class Entrada(object):
             self.temperatura = float(input("Temperatura (ºC): "))
             return self.reator()
 
-        self.area_distr = float(input("Área de Influencia de cada distribuidor: "))
+        self.area_distr = float(input("Área de Influencia de cada distribuidor (m²): "))
         self.altura = float(input("Altura do Reator (m): "))
-            
+
 
     def coletores_gas(self):
         self.nColetores = int(input("Quantidade de coletores por módulo: "))
-        self.largura_coletores = float(input("Lagura de cada coletor de gás: "))
+        self.largura_coletores = float(input("Lagura de cada coletor de gás (m): "))
 
     def abertura_para_decantador(self):
-        self.largura_abertura_decan = float(input("Largura de abertura decantador: "))
+        self.largura_abertura_decan = float(input("Largura de abertura decantador (m): "))
+
+    def altura_decantador(self):
+        self.altura_h1_inclinada = float(input("Altura parede inclinada (m): "))
+        self.altura_h2_vertical = float(input("Altura da parede vertical (m): "))
+
+    def trespasse(self):
+        return float(input("Trespasse, min = 0.1 m: "))
